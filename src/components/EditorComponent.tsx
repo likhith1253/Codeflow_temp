@@ -1,8 +1,9 @@
+import { memo } from "react";
 import Editor from "@monaco-editor/react";
 import { Loader2 } from "lucide-react";
 
 interface EditorComponentProps {
-  code: string;
+  initialCode: string;
   language: string;
   onChange: (value: string | undefined) => void;
 }
@@ -39,7 +40,7 @@ const languageMap: Record<string, string> = {
   arduino: "cpp",
 };
 
-const EditorComponent = ({ code, language, onChange }: EditorComponentProps) => {
+const EditorComponent = memo(({ initialCode, language, onChange }: EditorComponentProps) => {
   const monacoLanguage = languageMap[language] || "javascript";
 
   return (
@@ -47,7 +48,7 @@ const EditorComponent = ({ code, language, onChange }: EditorComponentProps) => 
       <Editor
         height="100%"
         language={monacoLanguage}
-        value={code}
+        defaultValue={initialCode}
         onChange={onChange}
         theme="vs-dark"
         loading={
@@ -73,6 +74,8 @@ const EditorComponent = ({ code, language, onChange }: EditorComponentProps) => 
       />
     </div>
   );
-};
+});
+
+EditorComponent.displayName = "EditorComponent";
 
 export default EditorComponent;

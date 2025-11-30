@@ -24,6 +24,37 @@ export async function saveSnippet(title: string, code: string, language: string)
   return data;
 }
 
+export async function upsertSnippet(
+  snippet: Partial<Snippet> & { title: string; code: string; language: string }
+): Promise<Snippet | null> {
+  // If we have an ID, we're updating. If not, we're inserting.
+  // However, Supabase upsert requires the primary key to be present to update.
+  // If we don't have an ID, we should just insert.
+  
+  if (snippet.id) {
+    const { data, error } = await supabase
+      .from("snippets")
+      .upsert({
+        id: snippet.id,
+        title: snippet.title,
+        code: snippet.code,
+        language: snippet.language,
+        updated_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error upserting snippet:", error);
+      throw error;
+    }
+    return data;
+  } else {
+    // Fallback to saveSnippet if no ID (create new)
+    return saveSnippet(snippet.title, snippet.code, snippet.language);
+  }
+}
+
 export async function getAllSnippets(): Promise<Snippet[]> {
   const { data, error } = await supabase
     .from("snippets")

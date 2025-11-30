@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Play, Save, FolderOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,11 +18,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import EditorComponent from "@/components/EditorComponent";
 import OutputConsole from "@/components/OutputConsole";
 import SnippetList from "@/components/SnippetList";
-import { saveSnippet, getAllSnippets, deleteSnippet, Snippet } from "@/lib/snippets";
+import AIChatWidget from "@/components/AIChatWidget";
+import { saveSnippet, getAllSnippets, deleteSnippet, upsertSnippet, Snippet } from "@/lib/snippets";
+import { useDebounce } from "@/hooks/useDebounce";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -33,7 +37,7 @@ const languages = [
   { value: "java", label: "Java (OpenJDK 13.0.1)" },
   { value: "c", label: "C (GCC 9.2.0)" },
   { value: "cpp", label: "C++ (GCC 9.2.0)" },
-  
+
   // Second Tier (Very Reliable)
   { value: "csharp", label: "C# (Mono 6.6.0.161)" },
   { value: "go", label: "Go 1.13.5" },
@@ -216,6 +220,7 @@ greet "World"`
 };
 
 const EditorPage = () => {
+  // Local state for immediate, synchronous updates (handles user typing)
   const [code, setCode] = useState(defaultCode.javascript);
   const [language, setLanguage] = useState("javascript");
   const [output, setOutput] = useState("");
@@ -228,7 +233,69 @@ const EditorPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [snippetTitle, setSnippetTitle] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [autosaveEnabled, setAutosaveEnabled] = useState(true);
+  const [autoRunEnabled, setAutoRunEnabled] = useState(false);
   const { toast } = useToast();
+
+  // Use refs for autosave state to avoid re-rendering the editor
+  const isSavingRef = useRef(false);
+  const lastSavedRef = useRef<Date | null>(null);
+  const [saveStatusTrigger, setSaveStatusTrigger] = useState(0); // Just for UI updates
+
+  // Debounced autosave: triggers AFTER user stops typing
+  useEffect(() => {
+    if (!selectedSnippetId) {
+      console.log('[Autosave] Skipped - No snippet selected. Save file first.');
+      return;
+    }
+    if (!autosaveEnabled) {
+      console.log('[Autosave] Skipped - Autosave is disabled');
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      const currentSnippet = snippets.find(s => s.id === selectedSnippetId);
+      if (!currentSnippet) {
+        console.log('[Autosave] Error - Snippet not found');
+        return;
+      }
+
+      console.log('[Autosave] Starting save...');
+      isSavingRef.current = true;
+      setSaveStatusTrigger(prev => prev + 1); // Trigger UI update
+
+      try {
+        await upsertSnippet({
+          id: selectedSnippetId,
+          title: currentSnippet.title,
+          code: code,
+          language: language
+        });
+        lastSavedRef.current = new Date();
+        console.log('[Autosave] Successfully saved!');
+
+        if (autoRunEnabled) {
+          handleRun();
+        }
+      } catch (error) {
+        console.error('[Autosave] Failed:', error);
+        toast({
+          title: "Autosave Failed",
+          description: "Could not save changes. Please try saving manually.",
+          variant: "destructive",
+        });
+      } finally {
+        isSavingRef.current = false;
+        setSaveStatusTrigger(prev => prev + 1); // Trigger UI update
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [code, language, selectedSnippetId, autosaveEnabled, snippets, autoRunEnabled, toast]);
+
+
 
   useEffect(() => {
     loadSnippets();
@@ -254,6 +321,10 @@ const EditorPage = () => {
     setLanguage(value);
     setCode(defaultCode[value] || '');
   };
+
+  const handleCodeChange = useCallback((value: string | undefined) => {
+    setCode(value || "");
+  }, []);
 
   const handleRun = async () => {
     setIsRunning(true);
@@ -390,7 +461,28 @@ const EditorPage = () => {
             </Button>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="autosave-mode"
+              checked={autosaveEnabled}
+              onCheckedChange={setAutosaveEnabled}
+            />
+            <Label htmlFor="autosave-mode" className="text-xs">Autosave</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="autorun-mode"
+              checked={autoRunEnabled}
+              onCheckedChange={setAutoRunEnabled}
+            />
+            <Label htmlFor="autorun-mode" className="text-xs">Auto-Run</Label>
+          </div>
+          {isSavingRef.current ? (
+            <span className="text-xs text-muted-foreground animate-pulse">Saving...</span>
+          ) : lastSavedRef.current ? (
+            <span className="text-xs text-muted-foreground">Saved {lastSavedRef.current.toLocaleTimeString()}</span>
+          ) : null}
           <Button
             variant="outline"
             onClick={() => setSaveDialogOpen(true)}
@@ -455,9 +547,10 @@ const EditorPage = () => {
         <div className="flex flex-1 flex-col lg:flex-row">
           <div className="flex-1 p-3">
             <EditorComponent
-              code={code}
+              initialCode={code}
               language={language}
-              onChange={(value) => setCode(value || "")}
+              onChange={handleCodeChange}
+              key={selectedSnippetId || `new-${language}`}
             />
           </div>
           <div className="h-64 p-3 lg:h-auto lg:w-[400px]">
@@ -496,7 +589,8 @@ const EditorPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+      <AIChatWidget />
+    </div >
   );
 };
 
