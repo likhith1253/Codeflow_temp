@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
-import { 
-  Code2, 
-  Zap, 
-  Cloud, 
-  Terminal, 
-  ChevronRight, 
-  Languages, 
-  Save, 
+import {
+  Code2,
+  Zap,
+  Cloud,
+  Terminal,
+  ChevronRight,
+  Languages,
+  Save,
   Play,
   Sparkles
 } from "lucide-react";
@@ -17,7 +17,7 @@ const features = [
   {
     icon: Languages,
     title: "Multi-Language Support",
-    description: "Write code in Python, C, C++, Java, and JavaScript with full syntax highlighting.",
+    description: "Write code in 10 programming languages including Python, JavaScript, C/C++, Java, C#, Go, Ruby, PHP, and Bash with full syntax highlighting.",
   },
   {
     icon: Play,
@@ -47,7 +47,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       {/* Hero Section */}
       <section className="hero-gradient relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
@@ -65,7 +65,7 @@ const Landing = () => {
                 in the Cloud
               </h1>
               <p className="mb-8 max-w-lg text-lg text-muted-foreground">
-                A powerful online code editor with multi-language support, instant execution, 
+                A powerful online code editor with multi-language support, instant execution,
                 and cloud storage. Start coding in seconds, no setup required.
               </p>
               <div className="flex flex-wrap gap-4">
@@ -117,7 +117,7 @@ const Landing = () => {
               Everything You Need to <span className="gradient-text">Code</span>
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground">
-              A complete development environment in your browser with all the tools you need to write, 
+              A complete development environment in your browser with all the tools you need to write,
               test, and save your code.
             </p>
           </div>
@@ -151,7 +151,7 @@ const Landing = () => {
               Write code in your favorite programming language with full syntax highlighting and intelligent code completion.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              {["Python", "C", "C++", "Java", "JavaScript"].map((lang) => (
+              {["JavaScript", "Python", "C", "C++", "Java", "C#", "Go", "Ruby", "PHP", "Bash"].map((lang) => (
                 <div
                   key={lang}
                   className="rounded-xl border border-border bg-secondary/50 px-8 py-4 text-lg font-medium transition-all hover:border-primary/50 hover:bg-secondary"

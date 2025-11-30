@@ -6,16 +6,36 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Judge0 language IDs
+// Judge0 language IDs (verified from https://ce.judge0.com/languages)
 const languageIds: Record<string, number> = {
-  javascript: 63, // Node.js
-  python: 71, // Python 3
-  c: 50, // C (GCC)
-  cpp: 54, // C++ (GCC)
-  java: 62, // Java
-  php: 68, // PHP
-  ruby: 72, // Ruby
-  go: 60, // Go
+  javascript: 63, // Node.js 12.14.0
+  typescript: 74, // TypeScript 3.7.4
+  python: 71, // Python 3.8.1
+  c: 50, // C (GCC 9.2.0)
+  cpp: 54, // C++ (GCC 9.2.0)
+  csharp: 51, // C# (Mono 6.6.0.161)
+  java: 62, // Java (OpenJDK 13.0.1)
+  kotlin: 78, // Kotlin 1.3.70
+  swift: 83, // Swift 5.2.3
+  php: 68, // PHP 7.4.1
+  ruby: 72, // Ruby 2.7.0
+  go: 60, // Go 1.13.5
+  rust: 73, // Rust 1.40.0
+  r: 80, // R 4.0.0
+  perl: 85, // Perl 5.28.1
+  bash: 46, // Bash 5.0.0
+  sql: 82, // SQL (SQLite 3.27.2)
+  scala: 81, // Scala 2.13.2
+  haskell: 61, // Haskell (GHC 8.8.1)
+  lua: 64, // Lua 5.3.5
+  elixir: 57, // Elixir 1.9.4
+  clojure: 86, // Clojure 1.10.1
+  fsharp: 87, // F# (.NET Core SDK 3.1.202)
+  dart: 90, // Dart 2.19.2
+  fortran: 59, // Fortran (GFortran 9.2.0)
+  cobol: 77, // COBOL (GnuCOBOL 2.2)
+  pascal: 67, // Pascal (FPC 3.0.4)
+  assembly: 45, // Assembly (NASM 2.14.02)
   arduino: 54, // Arduino (uses C++ compiler)
 };
 
@@ -42,6 +62,8 @@ serve(async (req) => {
     }
 
     // Submit code to Judge0 (free public instance)
+    console.log(`Submitting ${language} code with language_id: ${languageId}`);
+
     const submitResponse = await fetch(`${JUDGE0_API}/submissions?base64_encoded=false&wait=false`, {
       method: "POST",
       headers: {
@@ -57,8 +79,12 @@ serve(async (req) => {
     if (!submitResponse.ok) {
       const errorText = await submitResponse.text();
       console.error("Judge0 submission error:", errorText);
+      console.error("Status:", submitResponse.status, submitResponse.statusText);
       return new Response(
-        JSON.stringify({ error: "Failed to submit code for execution" }),
+        JSON.stringify({
+          error: `Failed to submit code for execution. Judge0 API returned ${submitResponse.status}: ${submitResponse.statusText}`,
+          details: errorText
+        }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -111,7 +137,12 @@ serve(async (req) => {
     }
 
     if (result.stderr) {
-      error = result.stderr;
+      // Filter out noisy JVM warnings
+      error = result.stderr
+        .replace(/OpenJDK 64-Bit Server VM warning: Options -Xverify:none and -noverify were deprecated in JDK 13 and will likely be removed in a future release\.\n?/g, "")
+        .trim();
+
+      if (!error) error = null; // If error becomes empty after filtering, set to null
     }
 
     if (result.compile_output) {

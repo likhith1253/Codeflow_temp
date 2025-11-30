@@ -27,89 +27,192 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 const languages = [
-  { value: "javascript", label: "JavaScript" },
-  { value: "python", label: "Python" },
-  { value: "c", label: "C" },
-  { value: "cpp", label: "C++" },
-  { value: "java", label: "Java" },
-  { value: "php", label: "PHP" },
-  { value: "ruby", label: "Ruby" },
-  { value: "go", label: "Go" },
-  { value: "arduino", label: "Arduino" },
+  // Top Tier (Most Reliable)
+  { value: "javascript", label: "JavaScript (Node.js)" },
+  { value: "python", label: "Python 3.8.1" },
+  { value: "java", label: "Java (OpenJDK 13.0.1)" },
+  { value: "c", label: "C (GCC 9.2.0)" },
+  { value: "cpp", label: "C++ (GCC 9.2.0)" },
+  
+  // Second Tier (Very Reliable)
+  { value: "csharp", label: "C# (Mono 6.6.0.161)" },
+  { value: "go", label: "Go 1.13.5" },
+  { value: "ruby", label: "Ruby 2.7.0" },
+  { value: "php", label: "PHP 7.4.1" },
+  { value: "bash", label: "Bash 5.0.0" }
 ];
 
 const defaultCode: Record<string, string> = {
-  javascript: `// JavaScript Example
+  // Top Tier (Most Reliable)
+  javascript: `// JavaScript (Node.js) Example
+// Fast execution, excellent for web development
 function greet(name) {
   return \`Hello, \${name}!\`;
 }
 
-console.log(greet("World"));`,
-  python: `# Python Example
+// Example: Calculate factorial
+function factorial(n) {
+  return n <= 1 ? 1 : n * factorial(n - 1);
+}
+
+console.log(greet("World"));
+console.log(\`Factorial of 5: \${factorial(5)}\`);`,
+
+  python: `# Python 3.8.1 Example
+# Reliable execution, great for learning
+
 def greet(name):
     return f"Hello, {name}!"
 
-print(greet("World"))`,
-  c: `// C Example
+# Example: List comprehension
+numbers = [1, 2, 3, 4, 5]
+squares = [x**2 for x in numbers]
+
+print(greet("World"))
+print(f"Squares: {squares}")`,
+
+  java: `// Java (OpenJDK 13.0.1) Example
+// Excellent for algorithms and data structures
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        
+        // Example: Simple algorithm
+        int[] numbers = {1, 2, 3, 4, 5};
+        int sum = 0;
+        for (int num : numbers) {
+            sum += num;
+        }
+        System.out.println("Sum of numbers: " + sum);
+    }
+}`,
+
+  c: `// C (GCC 9.2.0) Example
+// Fast compilation, great for system programming
 #include <stdio.h>
 
 int main() {
     printf("Hello, World!\\n");
+    
+    // Example: Simple pointer usage
+    int x = 42;
+    int *ptr = &x;
+    printf("Value of x: %d\\n", *ptr);
+    
     return 0;
 }`,
-  cpp: `// C++ Example
+
+  cpp: `// C++ (GCC 9.2.0) Example
+// Great for algorithms and performance
 #include <iostream>
-using namespace std;
+#include <vector>
 
 int main() {
-    cout << "Hello, World!" << endl;
+    std::cout << "Hello, World!" << std::endl;
+    
+    // Example: Using STL
+    std::vector<int> numbers = {1, 2, 3, 4, 5};
+    std::cout << "Vector elements: ";
+    for (int num : numbers) {
+        std::cout << num << " ";
+    }
+    std::cout << std::endl;
+    
     return 0;
 }`,
-  java: `// Java Example
-public class Main {
-    public static void main(String[] args) {
-        System.out.println("Hello, World!");
+
+  // Second Tier (Very Reliable)
+  csharp: `// C# (Mono 6.6.0.161) Example
+// Great for .NET development
+using System;
+using System.Linq;
+
+class Program {
+    static void Main() {
+        Console.WriteLine("Hello, World!");
+        
+        // Example: LINQ query
+        int[] numbers = { 1, 2, 3, 4, 5 };
+        var evenNumbers = numbers.Where(n => n % 2 == 0);
+        Console.WriteLine("Even numbers: " + string.Join(", ", evenNumbers));
     }
 }`,
-  php: `<?php
-// PHP Example
-function greet($name) {
-    return "Hello, " . $name . "!";
-}
 
-echo greet("World") . "\\n";
-?>`,
-  ruby: `# Ruby Example
+  go: `// Go 1.13.5 Example
+// Fast compilation, simple concurrency
+package main
+
+import (
+    "fmt"
+    "sync"
+)
+
+func main() {
+    fmt.Println("Hello, World!")
+    
+    // Example: Goroutines
+    var wg sync.WaitGroup
+    for i := 1; i <= 3; i++ {
+        wg.Add(1)
+        go func(n int) {
+            defer wg.Done()
+            fmt.Printf("Goroutine %d\\n", n)
+        }(i)
+    }
+    wg.Wait()
+}`,
+
+  ruby: `# Ruby 2.7.0 Example
+# Clean syntax, great for scripting
+
 def greet(name)
   "Hello, #{name}!"
 end
 
-puts greet("World")`,
-  go: `// Go Example
-package main
+# Example: Using blocks and ranges
+numbers = (1..5).to_a
+squares = numbers.map { |n| n ** 2 }
 
-import "fmt"
+puts greet("World")
+puts "Squares: #{squares.join(', ')}"`,
 
-func main() {
-    fmt.Println("Hello, World!")
-}`,
-  arduino: `// Arduino Example (C++ based)
-// Note: This compiles as C++ code
-
-void setup() {
-    // Initialize serial communication
-    // Serial.begin(9600);
+  php: `<?php
+// PHP 7.4.1 Example
+// Great for web development
+function greet($name) {
+    return "Hello, $name!";
 }
 
-void loop() {
-    // Main code here
+// Example: Working with arrays
+$fruits = ["apple", "banana", "cherry"];
+$uppercased = array_map('strtoupper', $fruits);
+
+echo greet("World") . "\\n";
+print_r($uppercased);
+?>`,
+
+  bash: `#!/bin/bash
+# Bash 5.0.0 Example
+# Excellent for shell scripting
+
+
+greet() {
+    local name=$1
+    echo "Hello, $name!"
 }
 
-int main() {
-    // For testing without Arduino hardware
-    setup();
-    return 0;
-}`,
+
+# Example: Command substitution and loops
+echo "Current directory: $(pwd)"
+echo "Files in directory:"
+for file in *; do
+    if [ -f "$file" ]; then
+        echo "- $file"
+    fi
+done
+
+
+greet "World"`
 };
 
 const EditorPage = () => {
@@ -147,11 +250,9 @@ const EditorPage = () => {
     }
   };
 
-  const handleLanguageChange = (newLanguage: string) => {
-    setLanguage(newLanguage);
-    if (!selectedSnippetId) {
-      setCode(defaultCode[newLanguage] || "");
-    }
+  const handleLanguageChange = (value: string) => {
+    setLanguage(value);
+    setCode(defaultCode[value] || '');
   };
 
   const handleRun = async () => {
@@ -159,7 +260,7 @@ const EditorPage = () => {
     setOutput("");
     setIsError(false);
     setExecutionTime(undefined);
-    
+
     const startTime = Date.now();
 
     try {
@@ -259,7 +360,7 @@ const EditorPage = () => {
   return (
     <div className="flex h-screen flex-col bg-background">
       <Navbar />
-      
+
       {/* Toolbar */}
       <div className="flex items-center justify-between border-b border-border bg-card/50 px-4 py-2">
         <div className="flex items-center gap-3">

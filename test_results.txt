@@ -1,0 +1,119 @@
+Testing javascript... PASS
+Testing typescript... PASS
+Testing python... PASS
+Testing c... ERROR (The remote server returned an error: (408) Request Timeout.)
+Testing cpp... ERROR (The remote server returned an error: (408) Request Timeout.)
+Testing csharp... FAIL (Output: , Error: Main.cs(1,71): error CS1056: Unexpected character `\0022'
+Main.cs(1,73): error CS1040: Preprocessor directives must appear as the first non-whitespace character on a line
+Main.cs(1,76): error CS1056: Unexpected character `\0022'
+Compilation failed: 3 error(s), 0 warnings
+)
+Testing java... FAIL (Output: , Error: Main.java:1: error: illegal character: '\'
+public class Main { public static void main(String[] args) { System.out.println(\"Java OK\"); } }
+                                                                                ^
+Main.java:1: error: unclosed string literal
+public class Main { public static void main(String[] args) { System.out.println(\"Java OK\"); } }
+                                                                                 ^
+Main.java:1: error: reached end of file while parsing
+public class Main { public static void main(String[] args) { System.out.println(\"Java OK\"); } }
+                                                                                                 ^
+3 errors
+)
+Testing kotlin... FAIL (Output: , Error: OpenJDK 64-Bit Server VM warning: Options -Xverify:none and -noverify were deprecated in JDK 13 and will likely be removed in a future release.
+Main.kt:1:22: error: expecting an expression
+fun main() { println(\"Kotlin OK\") }
+                     ^
+Main.kt:1:22: error: expecting ')'
+fun main() { println(\"Kotlin OK\") }
+                     ^
+Main.kt:1:23: error: unexpected tokens (use ';' to separate expressions on the same line)
+fun main() { println(\"Kotlin OK\") }
+                      ^
+Main.kt:1:38: error: expecting '}'
+fun main() { println(\"Kotlin OK\") }
+                                     ^
+Main.kt:1:14: error: overload resolution ambiguity: 
+public inline fun println(message: Any?): Unit defined in kotlin.io
+public inline fun println(message: Boolean): Unit defined in kotlin.io
+public inline fun println(message: Byte): Unit defined in kotlin.io
+public inline fun println(message: Char): Unit defined in kotlin.io
+public inline fun println(message: CharArray): Unit defined in kotlin.io
+public inline fun println(message: Double): Unit defined in kotlin.io
+public inline fun println(message: Float): Unit defined in kotlin.io
+public inline fun println(message: Int): Unit defined in kotlin.io
+public inline fun println(message: Long): Unit defined in kotlin.io
+public inline fun println(message: Short): Unit defined in kotlin.io
+fun main() { println(\"Kotlin OK\") }
+             ^
+)
+Testing swift... FAIL (Output: , Error: Main.swift:1:8: error: unterminated string literal
+print(\"Swift OK\")
+       ^
+)
+Testing php... FAIL (Output: 
+Parse error: syntax error, unexpected '"', expecting identifier (T_STRING) in /box/script.php on line 1
+, Error: Runtime error)
+Testing ruby... PASS
+Testing go... FAIL (Output: , Error: can't load package: package main: 
+main.go:2:8: illegal character U+005C '\'
+main.go:2:9: string literal not terminated
+main.go:3:27: illegal character U+005C '\'
+main.go:3:28: string literal not terminated
+)
+Testing rust... FAIL (Output: , Error: error: unknown start of token: \
+ --> main.rs:1:22
+  |
+1 | fn main() { println!(\"Rust OK\"); }
+  |                      ^
+
+error: unterminated double quote string
+ --> main.rs:1:23
+  |
+1 | fn main() { println!(\"Rust OK\"); }
+  |                       ^^^^^^^^^^^^^^
+
+error: aborting due to 2 previous errors
+
+)
+Testing r... PASS
+Testing perl... FAIL (Output: , Error: Can't find string terminator '"' anywhere before EOF at script.pl line 1.
+)
+Testing bash... PASS
+Testing sql... PASS
+Testing scala... FAIL (Output: , Error: Main.scala:1: error: unclosed string literal
+object Main extends App { println(\"Scala OK\") }
+                                   ^
+Main.scala:1: error: '}' expected but eof found.
+object Main extends App { println(\"Scala OK\") }
+                                                 ^
+2 errors
+)
+Testing haskell... FAIL (Output: , Error: [1 of 1] Compiling Main             ( main.hs, main.o )
+
+main.hs:1:31: error:
+    lexical error in string/character literal at end of input
+  |
+1 | main = putStrLn \"Haskell OK\"
+  |                               ^
+)
+Testing lua... PASS
+Testing elixir... FAIL (Output: , Error: ** (SyntaxError) script.exs:1: unexpected token: "\" (column 9, code point U+005C)
+    (elixir) lib/code.ex:813: Code.require_file/2
+)
+Testing clojure... FAIL (Output: , Error: Syntax error reading source at (main.clj:1:19).
+Unsupported character: \"Clojure
+
+Full report at:
+/tmp/clojure-2688651282982901499.edn
+)
+Testing fsharp... FAIL (Output: , Error: 
+
+/box/script.fsx(4,13): error FS0010: Unexpected character '\' in binding. Expected incomplete structured construct at or before this point or other token.
+
+)
+Testing dart... PASS
+Testing fortran... PASS
+Testing cobol... PASS
+Testing pascal... PASS
+Testing assembly... PASS
+Testing arduino... ERROR (The remote server returned an error: (408) Request Timeout.)
